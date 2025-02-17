@@ -1,0 +1,130 @@
+{
+  "type": "module",
+  "name": "flowbite-react-admin-dashboard",
+  "version": "1.1.0",
+  "descrption": "flowbite-react admin dashboard",
+  "homepage": "https://github.com/themesberg/flowbite-react-admin-dashboard",
+  "bugs": "https://github.com/themesberg/flowbite-react-admin-dashboard/issues",
+  "license": "UNLICENSED",
+  "author": "Conner Davis <cdavis@scu.edu>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/themesberg/flowbite-react-admin-dashboard.git"
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite --host",
+    "format": "prettier --check --ignore-path .gitignore --write .",
+    "lint": "eslint --ignore-path .gitignore .",
+    "preview": "vite preview --host",
+    "typecheck": "tsc"
+  },
+  "engines": {
+    "node": ">= 16",
+    "npm": ">= 8",
+    "yarn": ">= 1"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.5.1",
+    "@tanstack/react-query": "^5.65.0",
+    "apexcharts": "^3.41.0",
+    "axios": "^1.4.0",
+    "classnames": "^2.3.2",
+    "ethers": "^6.13.5",
+    "flowbite": "^1.8.0",
+    "flowbite-react": "^0.5.0",
+    "formik": "^2.4.3",
+    "js-cookie": "^3.0.5",
+    "jwt-decode": "^4.0.0",
+    "lucide-react": "^0.474.0",
+    "pixi-spine": "^4.0.4",
+    "pixi.js": "^8.7.3",
+    "qrcode.react": "^4.2.0",
+    "react-apexcharts": "^1.4.1",
+    "react-icons": "^4.10.1",
+    "react-redux": "^9.2.0",
+    "react-sortablejs": "^6.1.4",
+    "react-toastify": "^11.0.3",
+    "sortablejs": "^1.15.0",
+    "svgmap": "^2.10.1",
+    "web3": "^4.16.0",
+    "yup": "^1.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.17",
+    "@types/react-dom": "^18.2.7",
+    "@types/sortablejs": "^1.15.1",
+    "@typescript-eslint/eslint-plugin": "^6.2.0",
+    "@typescript-eslint/parser": "^6.2.0",
+    "@vitejs/plugin-react": "^4.0.3",
+    "autoprefixer": "^10.4.14",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^8.46.0",
+    "eslint-config-prettier": "^8.9.0",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-react": "^7.33.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-tailwindcss": "^3.13.0",
+    "postcss": "^8.4.27",
+    "prettier": "^3.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router": "^6.14.2",
+    "react-router-dom": "^6.14.2",
+    "tailwindcss": "^3.3.3",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.7",
+    "vitest": "^0.33.0"
+  },
+  "private": true,
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "eslintConfig": {
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/strict",
+      "plugin:jsx-a11y/recommended",
+      "plugin:prettier/recommended",
+      "plugin:react/recommended",
+      "plugin:react-hooks/recommended",
+      "plugin:tailwindcss/recommended"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "ecmaFeatures": {
+        "jsx": true
+      },
+      "project": "./tsconfig.json"
+    },
+    "root": true,
+    "rules": {
+      "@typescript-eslint/consistent-type-imports": "error",
+      "react/react-in-jsx-scope": "off",
+      "react/no-unescaped-entities": "off",
+      "tailwindcss/classnames-order": [
+        "error",
+        {
+          "callees": [
+            "classnames"
+          ],
+          "config": "tailwind.config.cjs"
+        }
+      ],
+      "tailwindcss/no-custom-classname": [
+        "error",
+        {
+          "config": "tailwind.config.cjs"
+        }
+      ]
+    },
+    "settings": {
+      "react": {
+        "version": "detect"
+      }
+    }
+  }
+}
