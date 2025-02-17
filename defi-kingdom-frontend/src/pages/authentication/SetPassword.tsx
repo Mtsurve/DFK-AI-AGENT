@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 const BackendUrl = import.meta.env.VITE_BACKEND_URL;
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { resetPassword } from "../../queries/comman";
-import ReusableButton from "../../atoms/Reusable";
+import ReusableButton from "../../atoms/ReusableButton";
 
 export default function SetPassword() {
   const { token } = useParams();

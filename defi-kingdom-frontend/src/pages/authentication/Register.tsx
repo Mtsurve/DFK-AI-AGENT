@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { registerApi } from "../../queries/comman";
-import ReusableButton from "../../atoms/Reusable";
+import ReusableButton from "../../atoms/ReusableButton";
 const BackendUrl = import.meta.env.VITE_BACKEND_URL;
 
 export default function Register() {

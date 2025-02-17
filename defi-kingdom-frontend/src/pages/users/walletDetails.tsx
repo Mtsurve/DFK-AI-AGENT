@@ -14,7 +14,7 @@ import {
   truncateAddress,
 } from "../../utility/constants";
 import Modal from "../../atoms/Modal";
-import ReusableButton from "../../atoms/Reusable";
+import ReusableButton from "../../atoms/ReusableButton";
 import { IoIosKey } from "react-icons/io";
 import {
   fetchUserActivityDetails,

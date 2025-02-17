@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { forgotPasswordApi } from "../../queries/comman";
-import ReusableButton from "../../atoms/Reusable";
+import ReusableButton from "../../atoms/ReusableButton";
 
 export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);

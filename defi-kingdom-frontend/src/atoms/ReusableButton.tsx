@@ -1,4 +1,14 @@
-const ReusableButton = ({
+import React, { ButtonHTMLAttributes, FC } from 'react';
+
+interface ReusableButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  type?: "button" | "submit" | "reset";
+  onClick?: () => void;
+  loading?: boolean;
+  className?: string;
+  children: React.ReactNode;
+}
+
+const ReusableButton: FC<ReusableButtonProps> = ({
   type = "button",
   onClick,
   loading = false,

@@ -8,7 +8,7 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { login } from "../../Redux/authSlice";
 import { loginApi } from "../../queries/comman";
-import ReusableButton from "../../atoms/Reusable";
+import ReusableButton from "../../atoms/ReusableButton";
 const BackendUrl = import.meta.env.VITE_BACKEND_URL;
 
 export default function Login() {

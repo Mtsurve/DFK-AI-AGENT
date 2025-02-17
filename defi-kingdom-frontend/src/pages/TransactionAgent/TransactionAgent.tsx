@@ -202,6 +202,9 @@ const TransactionAgent = () => {
                         {typeof message?.text?.response?.success_response ===
                         VARIABLES.OBJECT ? (
                           <div className="p-2 w-full flex flex-col items-center">
+                            <p className="text-sm text-green-700 font-semibold dark:text-green-700 mb-2">
+                              Hero is been bought successfully!
+                            </p>
                             <p className="text-md text-gray-700 dark:text-gray-300 mb-2">
                               Hero Details:
                             </p>

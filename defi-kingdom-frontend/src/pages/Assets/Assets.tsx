@@ -76,7 +76,7 @@ const Assets = () => {
         ) : (
           <div className="w-full max-w-screen-2xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-items-center">
             {heroes?.result?.map((hero: any) => (
-              <Card key={hero.id} hero={hero} />
+              <Card key={hero.id} hero={hero} isDelete={true} />
             ))}
           </div>
         )}

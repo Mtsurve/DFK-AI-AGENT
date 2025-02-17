@@ -7,3 +7,17 @@ export const getHeroesByAddress = async (address) => {
 
   return response.data;
 };
+
+export const sellHeroById = async (data) => {
+  const promise = instance.post(`heroes/sell-hero`, data);
+  const response = await toast.promise(promise, {
+    pending: "Selling hero...",
+    success: "Hero sold successfully!",
+    error: {
+      render({ data }) {
+        return data?.response?.data?.message;
+      },
+    },
+  });
+  return response.data;
+};
