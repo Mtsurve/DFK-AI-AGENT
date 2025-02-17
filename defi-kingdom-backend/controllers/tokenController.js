@@ -354,7 +354,7 @@ const aceApiAll = async (req, res) => {
         console.log("Request Body:", req.body);
 
         // Step 1: Swap Tokens (e.g., AVAX to JEWEL)
-        const swapResponse = await performSwap(req);
+        const swapResponse = await performSwap(req,res);
         const buyHeroResponse = await heroesController.performBuyHero(req);
 
         // Step 3: Start Quest
@@ -372,7 +372,7 @@ const aceApiAll = async (req, res) => {
     }
 };
 
-async function performSwap(req) {
+async function performSwap(req,res) {
     try {
         let { amount, from, to } = req.body;
         const user = await fetchUserByEmail(req.user.email);
