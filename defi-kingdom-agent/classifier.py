@@ -4,12 +4,14 @@ from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import RunnableBranch, RunnableLambda
 from langchain.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
+from dotenv import load_dotenv
 import json
 from utils.format_llm_response import extract_json
 from prompts.classifier_prompt import classifier_prompt
 from prompts.hero_prompt import hero_prompt
+load_dotenv()
 
-os.environ["GROQ_API_KEY"] = "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"
+os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
 
 # Initialize model
 model = ChatGroq(model="gemma2-9b-it", temperature=0)
@@ -31,6 +33,15 @@ def _transaction_prompt_activity(user_id, role, query):
         memory.append((role, query))
     return get_user_activity_memory(user_id)
 
+def _ace_prompt_activity(user_id, role, query):
+    memory = get_user_ace_memory(user_id)
+    if role.lower() == 'assistant'.lower():
+        memory.append((query))
+    else:
+        memory.append((role, query))
+    return get_user_ace_memory(user_id)
+
+
 def _classification_memory(user_id, role, query):
     memory = get_classification_memory(user_id)
     memory.append((role, query))
@@ -39,10 +50,13 @@ def _classification_memory(user_id, role, query):
 
 # Define branching logic
 
-def pass_original_query(input_query):
-    classification_in_memory = _classification_memory("neel", "human", "{query}")
+def pass_original_query(inputs):
+    input_query = inputs["input_query"]
+    user_id = inputs["user_id"]
+
+    classification_in_memory = _classification_memory(user_id, "human", "{query}")
     classification = (ChatPromptTemplate.from_messages(classification_in_memory) | model | StrOutputParser()).invoke(input_query)
-    _classification_memory("neel", "ai", classification)
+    _classification_memory(user_id, "ai", classification)
     return {"query": input_query, "classification": classification}
 
 user_memories = {}
@@ -89,6 +103,26 @@ def get_user_activity_memory(user_id):
         ]
     return user_memories_activity[user_id]
 
+user_ace_activity = {}
+def get_user_ace_memory(user_id):
+    """Retrieve or create memory for a specific user."""
+    if user_id not in user_ace_activity:
+        user_ace_activity[user_id] = [
+            ("system", classifier_prompt),
+            ("human", "Do my initial setup"),
+            AIMessage(content=json.dumps({"action": "ace", "message": None})),
+            ("human", "Setup everything initially"),
+            AIMessage(content=json.dumps({"action": "ace", "message": None})),
+            ("human", "Can you handle my initial setup?"),
+            AIMessage(content=json.dumps({"action": "ace", "message": None})),
+            ("human", "Start the setup process for me"),
+            AIMessage(content=json.dumps({"action": "ace", "message": None})),
+            ("human", "Initialize everything for me"),
+            AIMessage(content=json.dumps({"action": "ace", "message": None})),
+        ]
+    return user_ace_activity[user_id]
+
+
 classification_memory = {}
 def get_classification_memory(user_id):
     """Retrieve or create memory for a specific user."""
@@ -108,26 +142,31 @@ def get_classification_memory(user_id):
     return classification_memory[user_id]
 
     
-def run_chain(input_value):
+def run_chain(input_value,user_id):
      # Step 1: Get classification FIRST and store result
     classification_chain = RunnableLambda(pass_original_query)
-    classification_result = classification_chain.invoke(input_value)  # Ensure classification happens first
+    classification_result = classification_chain.invoke({"input_query": input_value, "user_id": user_id})
 
     classifier_label = classification_result["classification"]
- 
     # Step 2: Fetch memory-based prompts
     if classification_result["classification"].lower().strip() == "Transaction".lower().strip():
-        transaction_in_memory = _transaction_prompt("neel", "human", "{query}")
+        transaction_in_memory = _transaction_prompt(user_id, "human", "{query}")
         transaction_chain = ChatPromptTemplate.from_messages(transaction_in_memory) | model | StrOutputParser()
         selected_chain = transaction_chain
         result = selected_chain.invoke(input_value) 
-        _transaction_prompt("neel", "assistant", AIMessage(content=json.dumps(extract_json(result))))
-    else:
-        activity_in_memory = _transaction_prompt_activity("neel", "human", "{query}")
+        _transaction_prompt(user_id, "assistant", AIMessage(content=json.dumps(extract_json(result))))
+    elif classification_result['classification'].lower().strip() == "Activity".lower().strip():
+        activity_in_memory = _transaction_prompt_activity(user_id, "human", "{query}")
         activity_chain = ChatPromptTemplate.from_messages(activity_in_memory) | model | StrOutputParser()
         selected_chain = activity_chain
         result = selected_chain.invoke(input_value) 
-        _transaction_prompt_activity("neel", "assistant", AIMessage(content=json.dumps(extract_json(result))))
+        _transaction_prompt_activity(user_id, "assistant", AIMessage(content=json.dumps(extract_json(result))))
+    else:
+        ace_in_memory = _ace_prompt_activity(user_id, "human", "{query}")
+        ace_chain = ChatPromptTemplate.from_messages(ace_in_memory) | model | StrOutputParser()
+        selected_chain = ace_chain
+        result = selected_chain.invoke(input_value) 
+        _ace_prompt_activity(user_id, "assistant", AIMessage(content=json.dumps(extract_json(result))))
 
 
     # result = selected_chain.invoke(input_value) 
@@ -135,7 +174,3 @@ def run_chain(input_value):
     formatted = {"classifier": classifier_label, "ai_response": result}
     print(formatted)
     return formatted
-
-# chain("buy me a hero")
-# get_user_memory("neel")
-
