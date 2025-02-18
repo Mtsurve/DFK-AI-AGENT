@@ -112,7 +112,6 @@ const WalletDetails = () => {
   const verifyOtpMutation = useMutation({
     mutationFn: verifyOtpApi,
     onSuccess: (data) => {
-      console.log("data", data);
       setPrivateKeyVisible(true);
     },
     onError: (error) => {

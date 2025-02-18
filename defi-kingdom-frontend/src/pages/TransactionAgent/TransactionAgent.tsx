@@ -208,9 +208,10 @@ const TransactionAgent = () => {
                             <p className="text-md text-gray-700 dark:text-gray-300 mb-2">
                               Hero Details:
                             </p>
-                            <div className="w-full max-w-md sm:max-w-lg">
+                            <div className="w-full flex justify-center max-w-md sm:max-w-lg">
                               <Card
                                 hero={message?.text?.response?.success_response}
+                                isDelete={false}
                               />
                             </div>
                           </div>

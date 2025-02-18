@@ -52,7 +52,7 @@ def chat():
         return jsonify({"response": "An error occurred. Please try again."})
     
 
-API_URL = os.getenv("API_URL")
+API_URL = "https://a1f9-27-107-38-74.ngrok-free.app/v1/token/swap-tokens"
  
 @app.route('/swap', methods=['POST'])
 def swap_bot():
@@ -98,8 +98,7 @@ def swap_bot():
              "Content-Type": "application/json",
              "Authorization": auth_header 
         }
-
-
+        print(swap_payload)
         swap_response = requests.post(API_URL, json=swap_payload, headers=header)
 
         swap_data = swap_response.json() if swap_response.status_code == 200 else {"error": "Swap API request failed"}

@@ -61,3 +61,8 @@ export const truncateAddress = (address: string) => {
   if (!address) return "Connect Wallet";
   return `${address.slice(0, 6)}...${address.slice(-6)}`;
 };
+
+export const NONE = 'NONE';
+export const COMPLETED = 'COMPLETED';
+export const CANCELED = 'CANCELED';
+export const  STARTED = 'STARTED';

@@ -7,6 +7,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useMutation } from "@tanstack/react-query";
 import { sellHeroById } from "../queries/assets";
+import { CANCELED, COMPLETED, NONE, STARTED } from "../utility/constants";
 
 interface ProgressBarProps {
   value: number;
@@ -72,6 +73,7 @@ interface CardProps {
     fishing: number;
     foraging: number;
     on_sale: boolean;
+    quest_status: string;
   };
 }
 
@@ -204,8 +206,13 @@ const Card: React.FC<CardProps> = ({ hero, isDelete }) => {
               </div>
               <div className="items-center gap-1">
                 {hero.on_sale == true && (
-                  <div className="right-2 p-1 px-2 dark:text-white text-sm bg-green-700 font-semibold transition text-black rounded-lg">
+                  <div className="right-2 p-1 px-2 text-white dark:text-white text-sm bg-green-700 font-semibold transition rounded-lg">
                     For Sell
+                  </div>
+                )}
+                 {hero.quest_status === STARTED && (
+                  <div className="right-2 p-1 px-2 text-white dark:text-white text-sm bg-blue-800 font-semibold transition rounded-lg">
+                    On A Quest
                   </div>
                 )}
               </div>
@@ -215,7 +222,7 @@ const Card: React.FC<CardProps> = ({ hero, isDelete }) => {
               </div>
             </div>
           </div>
-          {isDelete && !isFlipped && (
+          {isDelete && !isFlipped && hero.quest_status === (NONE || COMPLETED || CANCELED)  && hero.on_sale !== true && (
             <button
               className="absolute top-2 right-2 p-1 dark:text-white text-sm font-semibold transition text-black rounded-lg"
               onClick={(e) => {
@@ -277,7 +284,7 @@ const Card: React.FC<CardProps> = ({ hero, isDelete }) => {
               <Field
                 type="number"
                 name="price"
-                className="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white"
+                className="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 placeholder="Enter price"
               />
               <ErrorMessage
