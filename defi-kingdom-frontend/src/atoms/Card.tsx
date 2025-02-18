@@ -75,6 +75,8 @@ interface CardProps {
     on_sale: boolean;
     quest_status: string;
   };
+  isDelete: boolean;
+  onDelete: () => void;
 }
 
 interface StatsSectionProps {
@@ -97,7 +99,7 @@ const StatsSection: React.FC<StatsSectionProps> = ({ title, stats }) => (
   </div>
 );
 
-const Card: React.FC<CardProps> = ({ hero, isDelete }) => {
+const Card: React.FC<CardProps> = ({ hero, isDelete,onDelete }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -112,6 +114,7 @@ const Card: React.FC<CardProps> = ({ hero, isDelete }) => {
     mutationFn: sellHeroById,
     onSuccess: () => {
       setIsModalOpen(false);
+      onDelete();
     },
     onError: (error) => {
       // setIsModalOpen(false);
@@ -205,7 +208,7 @@ const Card: React.FC<CardProps> = ({ hero, isDelete }) => {
                 {hero.hp}
               </div>
               <div className="items-center gap-1">
-                {hero.on_sale == true && (
+                {isDelete &&  hero.on_sale == true && (
                   <div className="right-2 p-1 px-2 text-white dark:text-white text-sm bg-green-700 font-semibold transition rounded-lg">
                     For Sell
                   </div>

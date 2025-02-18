@@ -3,16 +3,19 @@ import { getHeroesByAddress } from "../../queries/assets";
 import { useQuery } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
 import NoContentAvailable from "../../atoms/NoContentAvailable";
+import { useEffect, useState } from "react";
 
 const Assets = () => {
   const { authData } = useSelector((state: any) => state.auth);
+  const [deleteTrigger, setDeleteTrigger] = useState(false);
 
   let {
     data: heroes,
     isLoading,
     isError,
+    refetch
   } = useQuery({
-    queryKey: ["heroes", authData.wallet_address],
+    queryKey: ["heroes", authData.wallet_address,deleteTrigger],
     queryFn: () => getHeroesByAddress(authData.wallet_address),
     staleTime: Infinity,
     refetchOnMount: false,
@@ -21,8 +24,15 @@ const Assets = () => {
     retry: false,
   });
 
+  const handleDelete = () => {
+    setDeleteTrigger(prev => !prev);
+  };
+
+  useEffect(() => {
+    refetch();
+  }, [deleteTrigger, refetch]);
+
   const LoadingSkeleton = () => (
-    
     <>
       {[...Array(4)].map((_, index) => (
         <div
@@ -68,16 +78,24 @@ const Assets = () => {
   return (
     <>
       <div className="pb-24 sm:p-4 sm:pb-24 overflow-y-auto h-screen justify-center">
+      <div className="text-start mb-4">
+          <h2 className="text-xl text-black dark:text-white font-semibold">Total Heroes: {heroes?.result?.length || 0}</h2>
+        </div>
         {isLoading ? (
+          <>
+          <div className="text-start mb-4">
+              <h2 className="text-xl text-black dark:text-white font-semibold">Loading Heroes...</h2>
+            </div>
           <div className="w-full max-w-screen-2xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-items-center">
             <LoadingSkeleton />
           </div>
+          </>
         ) : isError ? (
           <NoContentAvailable />
         ) : (
           <div className="w-full max-w-screen-2xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-items-center">
             {heroes?.result?.map((hero: any) => (
-              <Card key={hero.id} hero={hero} isDelete={true} />
+              <Card key={hero.id} hero={hero} isDelete={true} onDelete={handleDelete}/>
             ))}
           </div>
         )}

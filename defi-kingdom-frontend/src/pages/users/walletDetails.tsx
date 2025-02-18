@@ -24,6 +24,7 @@ import {
 } from "../../queries/comman";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Table from "../../atoms/Table";
+import NoContentAvailable from "../../atoms/NoContentAvailable";
 
 const provider = new ethers.JsonRpcProvider(
   "https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc"
@@ -522,8 +523,10 @@ const WalletDetails = () => {
             <h2 className="text-xl dark:text-white font-bold mb-4">
               User Activity
             </h2>
-            {userActivityDetails?.result?.length > 0 && (
+            {userActivityDetails?.result?.length > 0 ? (
               <Table columns={USER_ACTIVITY_COLUMNS} rows={userActivity} />
+            ) : (
+              <NoContentAvailable/>
             )}
           </div>
         </div>
