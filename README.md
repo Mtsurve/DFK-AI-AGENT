@@ -18,6 +18,22 @@ Ensure you have the following installed:
 - **Python** (version >= 3.8)
 - **npm** for package management
 
+## Nodemailer Setup with Gmail App Password for 2FA Authentication
+
+1. Enable Two-Factor Authentication (2FA) for Your Gmail Account
+  1. Visit Google Account Security.
+  2. Under the "Signing in to Google" section, click on 2-Step Verification and follow the instructions to set it up
+  3. Choose a method for verification (phone number, Google Authenticator, etc.).
+
+2. Generate an App Password for Nodemailer
+
+  After enabling 2FA for your Gmail account, you will need to create an App Password to use in your Nodemailer setup:
+
+  1. Visit App Passwords.
+  2. In the Select App dropdown, choose Other (Custom name).
+  3. Type Node (or any name you prefer) in the text box and click Generate.
+  4. Google will display a 16-character password. Copy this password, as you will use it in the next step.
+
 ## Installation
 
 ### 1. Clone the repository

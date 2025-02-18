@@ -9,6 +9,7 @@ const QUEST_CORE_CONTRACT_ADDRESS = "0x530fff22987E137e7C8D2aDcC4c15eb45b4FA752"
 const { fetchAndFormatHeroData } = require('../services/heroUtils');
 const { fetchUserByEmail } = require('../services/getUserData');
 const { fetchUserByWalletAddress } = require('../services/getUserData');
+require("dotenv").config();
 
 const UserActivityLogger = require('../classes/userActivity');
 const userActivityLogger = new UserActivityLogger(db);
@@ -44,21 +45,22 @@ async function getHeroesNetworkById(hero_id) {
     try {
         const id = hero_id;
         if (!id) {
-            return res.status(400).send(Response.sendResponse(false, null, HEROES_CONSTANTS_STATUS.HEROES_NOT_FOUND, 400));
+            return false
         }
 
         const data = await HeroesService.getHeroesById(id);
         if (!data.heroes || data.heroes.length === 0) {
-            return res.status(404).send(Response.sendResponse(false, null, HEROES_CONSTANTS_STATUS.HEROES_NOT_FOUND, 404));
+            return false;
         }
 
         const hero = data.heroes[0];
 
         const formattedHero = await fetchAndFormatHeroData(hero);
+
         return formattedHero
     } catch (error) {
-        // console.log("Error fetching hero data:", error);
-        return res.status(500).send(Response.sendResponse(false, null, HEROES_CONSTANTS_STATUS.ERROR_OCCURED, 500));
+        console.log("Error fetching hero data:", error);
+        return false
     }
 };
 
@@ -147,18 +149,38 @@ const buyHeroes = async (req, res) => {
 
         // Contract details
         const CONTRACT_ADDRESS = "0xc390fAA4C7f66E4D62E59C231D5beD32Ff77BEf0";
+        const CRYSTAL = TOKEN_CONSTANTS.CRYSTAL
+
         const ABI = [
             "function bid(uint256 amount, uint256 price) public",
             "function getCurrentPrice(uint256 _tokenId) view returns (uint256)",
         ];
 
+        const ERC20_ABI = [
+            "function allowance(address owner, address spender) view returns (uint256)",
+            "function approve(address spender, uint256 amount) public returns (bool)"
+        ];
+
         const provider = new ethers.JsonRpcProvider(TOKEN_CONSTANTS.DFK_RPC_URL);
         const wallet = new ethers.Wallet(user.wallet_private_key, provider);
         const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, wallet);
+        const tokenContract = new ethers.Contract(CRYSTAL, ERC20_ABI, wallet);
 
         // Get the current required bid price
         const currentPrice = await contract.getCurrentPrice(hero_id);
         const crystalAmountBN = currentPrice//ethers.toBigInt(amount);
+
+        const allowance = await tokenContract.allowance(user.wallet_address, CONTRACT_ADDRESS);
+
+        // ✅ If allowance is too low, approve the contract
+        if (allowance < crystalAmountBN) {
+            console.log("Approving contract...");
+            // Use BigInt to get the max uint256 value correctly
+            const maxUint256 = BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+            const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, maxUint256);
+            await approveTx.wait();
+            console.log("Approval successful!");
+        }
 
         // Send transaction
         const tx = await contract.bid(hero_id, crystalAmountBN);
@@ -168,6 +190,10 @@ const buyHeroes = async (req, res) => {
 
         const heroData = await getHeroesNetworkById(hero_id);
         // console.log("heroData",heroData);
+
+        if (!heroData) {
+            return res.status(400).send(Response.sendResponse(false, null, HEROES_CONSTANTS_STATUS.ERROR_OCCURED, 400));
+        }
 
         await userActivityLogger.logActivity(req, user.id, `Hero Bought`, tx.hash);
 
@@ -185,17 +211,37 @@ const performBuyHero = async (req) => {
         const user = await fetchUserByEmail(req.user.email);
 
         const CONTRACT_ADDRESS = "0xc390fAA4C7f66E4D62E59C231D5beD32Ff77BEf0";
+        const CRYSTAL = TOKEN_CONSTANTS.CRYSTAL
+
         const ABI = [
             "function bid(uint256 amount, uint256 price) public",
             "function getCurrentPrice(uint256 _tokenId) view returns (uint256)",
         ];
 
+        const ERC20_ABI = [
+            "function allowance(address owner, address spender) view returns (uint256)",
+            "function approve(address spender, uint256 amount) public returns (bool)"
+        ];
+
         const provider = new ethers.JsonRpcProvider(TOKEN_CONSTANTS.DFK_RPC_URL);
         const wallet = new ethers.Wallet(user.wallet_private_key, provider);
         const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, wallet);
+        const tokenContract = new ethers.Contract(CRYSTAL, ERC20_ABI, wallet);
+
+        const allowance = await tokenContract.allowance(user.wallet_address, CONTRACT_ADDRESS);
 
         const currentPrice = await contract.getCurrentPrice(hero_id);
         const crystalAmountBN = currentPrice//ethers.toBigInt(amount);
+
+        // ✅ If allowance is too low, approve the contract
+        if (allowance < crystalAmountBN) {
+            console.log("Approving contract...");
+            // Use BigInt to get the max uint256 value correctly
+            const maxUint256 = BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+            const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, maxUint256);
+            await approveTx.wait();
+            console.log("Approval successful!");
+        }
 
         const tx = await contract.bid(hero_id, crystalAmountBN);
 
@@ -204,10 +250,12 @@ const performBuyHero = async (req) => {
         const heroData = await getHeroesNetworkById(hero_id);
 
         await userActivityLogger.logActivity(req, user.id, `Hero Bought`, tx.hash);
+
         return {
             success: true,
             data: heroData,
-            transaction_hash: tx.hash
+            transaction_hash: tx.hash,
+            hero_id: hero_id
         };
 
     } catch (error) {
@@ -233,7 +281,9 @@ const heroesStartQuest = async (req, res) => {
 
         for (let i = 0; i < data.heroes.length; i++) {
             hero_id = data.heroes[i].id
-    
+
+            console.log("hero id::::::::@@@", hero_id)
+
             let heroes_quest = await contract.getHeroQuest(hero_id);
             let questStatus = Number(heroes_quest[9]);
 
@@ -246,9 +296,11 @@ const heroesStartQuest = async (req, res) => {
             };
 
             let hero_status = await fetchAndFormatHeroData(data.heroes[i])
-            
+
+            let stamina = await getHeroeStamina(hero_id);
+
             if (!(questStatus === QuestStatus.STARTED || questStatus === QuestStatus.EXPEDITION)
-                && hero_status.on_sale === false) {
+                && hero_status.on_sale === false && stamina < 7) {
                 break;
             }
 
@@ -256,12 +308,6 @@ const heroesStartQuest = async (req, res) => {
 
         if (!hero_id) {
             return res.status(404).send(Response.sendResponse(false, [], HEROES_CONSTANTS_STATUS.HEROES_NOT_FOUND, 404));
-        }
-
-        let stamina = await getHeroeStamina(hero_id);
-
-        if (stamina < 7) {
-            return res.status(400).send(Response.sendResponse(false, null, "Hero stamina is not enough", 400));
         }
 
         let heroIds = Array.isArray(hero_id) ? hero_id : [hero_id];
@@ -294,6 +340,7 @@ const heroesStartQuest = async (req, res) => {
 
         await userActivityLogger.logActivity(req, user.id, `Quest Started`, tx.hash);
 
+        console.log(user.telegram_chatid, process.env.TELEGRAM_API_URL)
         if (user.telegram_chatid) {
             await axios.post(process.env.TELEGRAM_API_URL, {
                 chat_id: user.telegram_chatid,
@@ -301,9 +348,9 @@ const heroesStartQuest = async (req, res) => {
             });
         }
 
-        return res.status(200).send(Response.sendResponse(true, receipt, "Quest started successfully", 200));
+        return res.status(200).send(Response.sendResponse(true, "Quest started successfully", null, 200));
     } catch (error) {
-        // console.error("Error starting quest:", error);
+        console.error("Error starting quest:", error);
         return res.status(500).send(Response.sendResponse(false, null, HEROES_CONSTANTS_STATUS.ERROR_OCCURED, 500));
     }
 };
@@ -329,6 +376,8 @@ async function performStartQuest(req) {
 
         for (let i = 0; i < data.heroes.length; i++) {
             hero_id = data.heroes[i].id;
+
+            console.log("hero_id::::::::::::::::::::::::::::::::::::", hero_id)
             let heroes_quest = await contract.getHeroQuest(hero_id);
             let questStatus = Number(heroes_quest[9]);
             const QuestStatus = {
@@ -392,6 +441,7 @@ async function performStartQuest(req) {
             transaction_hash: tx.hash
         };
     } catch (error) {
+        console.log(error)
         throw new Error(`Quest start failed: ${error.message}`);
     }
 }
@@ -424,11 +474,11 @@ const startCronJob = async () => {
     while (true) {
         await runQuestCheck();
         console.log('Waiting for 20 seconds before next check...');
-        await sleep(5000);
+        await sleep(20000);
     }
 };
 
-// startCronJob();
+startCronJob();
 
 
 const heroesCompleteQuest = async (hero_id, wallet_address) => {
@@ -442,12 +492,17 @@ const heroesCompleteQuest = async (hero_id, wallet_address) => {
         const tx = await contract.completeQuest(hero_id);
         const receipt = await tx.wait();
         console.log("Quest completed in block:", receipt.blockNumber);
-        await db.hero_quests.update({ quest_status: 3 }, { where: { hero_id: hero_id } });
 
-        await axios.post(process.env.TELEGRAM_API_URL, {
-            chat_id: user.telegram_chatid,
-            text: "Hero Quest is been Completed, Please login to Defi Kingdom portal for more Info",
-        });
+        if (receipt.blockNumber)
+            await db.hero_quests.update({ quest_status: 3 }, { where: { hero_id: hero_id } });
+
+        if (user.telegram_chatid) {
+            await axios.post(process.env.TELEGRAM_API_URL, {
+                chat_id: user.telegram_chatid,
+                text: "Hero Quest is been Completed, Please login to Defi Kingdom portal for more Info",
+            });
+        }
+
         return true
 
     } catch (error) {
@@ -466,14 +521,25 @@ const sellheroesQuest = async (req, res) => {
 
         const user = await fetchUserByEmail(req.user.email);
 
+        const HERO_CORE_CONTRACT = "0xEb9B61B145D6489Be575D3603F4a704810e143dF"; // Replace with actual Hero Core contract
         const CONTRACT_ADDRESS = "0xc390fAA4C7f66E4D62E59C231D5beD32Ff77BEf0";
+
+        const heroCoreAbi = ["function approve(address to, uint256 tokenId)"];
         const ABI = [
             "function createAuction(uint256 _tokenId, uint128 _startingPrice, uint128 _endingPrice, uint64 _duration, address _winner)"
         ];
 
         const provider = new ethers.JsonRpcProvider(TOKEN_CONSTANTS.DFK_RPC_URL);
         const wallet = new ethers.Wallet(user.wallet_private_key, provider);
+
+        const heroCoreContract = new ethers.Contract(HERO_CORE_CONTRACT, heroCoreAbi, wallet);
         const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, wallet);
+
+        // Approve Auction Contract to transfer Hero
+        console.log(`Approving Hero ID ${hero_id} for auction...`);
+        const approveTx = await heroCoreContract.approve(contract, hero_id);
+        await approveTx.wait();
+        console.log("Hero approved for auction.");
 
         const startingPriceBN = ethers.parseUnits(startingPrice.toString(), 18);
         const endingPriceBN = ethers.parseUnits(endingPrice.toString(), 18);
@@ -499,5 +565,6 @@ module.exports = {
     heroesCompleteQuest,
     sellheroesQuest,
     performBuyHero,
-    performStartQuest
+    performStartQuest,
+    getHeroesNetworkById
 };
