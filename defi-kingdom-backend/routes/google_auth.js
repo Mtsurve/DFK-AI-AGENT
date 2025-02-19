@@ -61,7 +61,7 @@ router.get(
         sameSite: "strict",
       });
 
-      const CLIENT_URL = `http://localhost:5173/auth/google/success/${token}/${wallet_address}`;
+      const CLIENT_URL = `https://defi.pharmaalabs.com/auth/google/success/${token}/${wallet_address}`;
       res.redirect(CLIENT_URL);
     } catch (error) {
       console.error("Error during Google callback:", error);

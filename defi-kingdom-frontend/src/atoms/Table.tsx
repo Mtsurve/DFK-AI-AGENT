@@ -37,6 +37,7 @@ const Table: React.FC<TableProps> = ({ columns, rows }) => {
               ))}
             </tr>
           </thead>
+
           <tbody>
             {rows.length > 0 ? (
               rows.slice(0, visibleRows).map((row, index) => (
@@ -63,7 +64,7 @@ const Table: React.FC<TableProps> = ({ columns, rows }) => {
           </tbody>
         </table>
         {visibleRows < rows.length && (
-          <div className="text-center py-4">
+          <div className=" py-4 text-center ">
             <button
               onClick={handleLoadMore}
               className="w-full py-3 rounded-lg text-white text-sm font-semibold transition duration-300 bg-blue-600 hover:bg-blue-700"
