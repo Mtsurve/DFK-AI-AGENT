@@ -22,7 +22,7 @@ import {
   verifyOtpApi,
   withdrawAmount,
 } from "../../queries/comman";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Table from "../../atoms/Table";
 import NoContentAvailable from "../../atoms/NoContentAvailable";
 
@@ -42,6 +42,8 @@ const WalletDetails = () => {
   const [privateKeyVisible, setPrivateKeyVisible] = useState(false);
   const [avaxBalance, setAvaxBalance] = useState("0.00");
   const [userActivity, setUserActivity] = useState([]);
+  const queryClient = useQueryClient();
+
 
   const { data: userActivityDetails } = useQuery({
     queryKey: ["userActivityDetails"],
@@ -64,6 +66,7 @@ const WalletDetails = () => {
       setShowWithdrawModal(false);
       fetchAvaxBalance();
       fetchBalances();
+      queryClient.invalidateQueries(["userActivityDetails"]);
     },
     onError: (error) => {
       console.error("Error withdrawing:", error);
