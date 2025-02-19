@@ -52,7 +52,7 @@ def chat():
         return jsonify({"response": "An error occurred. Please try again."})
     
 
-API_URL = "https://11a0-103-249-242-26.ngrok-free.app/v1/token/swap-tokens"
+API_URL = "http://34.93.243.137/v1/token/swap-tokens"
  
 @app.route('/swap', methods=['POST'])
 def swap_bot():
