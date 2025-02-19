@@ -14,12 +14,12 @@ load_dotenv()
 os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 # Dictionary to store conversation history for each user (session)
 conversation_history = {}
 
-@app.route('/chat', methods=['POST'])
+@app.route('/v2/chat', methods=['POST'])
 def chat():
     try:
         """
@@ -54,7 +54,7 @@ def chat():
 
 API_URL = "http://34.93.243.137/v1/token/swap-tokens"
  
-@app.route('/swap', methods=['POST'])
+@app.route('/v2/swap', methods=['POST'])
 def swap_bot():
     try:
         data = request.get_json()
@@ -110,4 +110,4 @@ def swap_bot():
     
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

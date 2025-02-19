@@ -30,7 +30,7 @@ const NoContentAvailable: React.FC<NoContentAvailableProps> = ({
           {message}
         </div>
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          The requested content is currently not available
+          The requested content is currently not available.
         </p>
       </div>
     </div>
