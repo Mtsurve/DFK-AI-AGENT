@@ -419,6 +419,8 @@ async function performStartQuest(req) {
             hero_address: heroes_quest_new[5]
         };
 
+        console.log({questData})
+
         await db.hero_quests.create(questData);
 
         await userActivityLogger.logActivity(req, user.id, `Quest Started`, tx.hash);

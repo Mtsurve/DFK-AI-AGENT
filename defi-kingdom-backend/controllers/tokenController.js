@@ -338,7 +338,7 @@ const withdrawFunds = async (req, res) => {
         // Wait for confirmation
         const receipt = await tx.wait();
 
-        await userActivityLogger.logActivity(req, user.id, `Withdraw Funds worth ${req.body.amount}`, tx.hash);
+        await userActivityLogger.logActivity(req, user_data.id, `Withdraw Funds worth ${req.body.amount}`, tx.hash);
 
         return res.status(200).send(Response.sendResponse(true, null, "Transaction confirmed in block: " + receipt.blockNumber, 200));
 
