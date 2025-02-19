@@ -335,18 +335,14 @@ const withdrawFunds = async (req, res) => {
             value: ethers.parseEther(String(req.body.amount)),
         });
 
-        console.log("Transaction sent! Hash:", tx.hash);
-
         // Wait for confirmation
         const receipt = await tx.wait();
-        console.log("Transaction confirmed in block:", receipt.blockNumber);
 
         await userActivityLogger.logActivity(req, user.id, `Withdraw Funds worth ${req.body.amount}`, tx.hash);
 
         return res.status(200).send(Response.sendResponse(true, null, "Transaction confirmed in block: " + receipt.blockNumber, 200));
 
     } catch (error) {
-        console.log("errr", error)
         return res.status(500).send(Response.sendResponse(false, null, error, 500));
     }
 }
@@ -354,7 +350,6 @@ const withdrawFunds = async (req, res) => {
 async function checkUserHero(req) {
     const user = await fetchUserByEmail(req.user.email);
     const data = await HeroesService.getHeroesByOwner(user.wallet_address);
-    console.log({ data })
 
     if (data.heroes.length > 0) {
         return false
@@ -367,8 +362,6 @@ const aceApiAll = async (req, res) => {
     try {
 
         const checkHero = await checkUserHero(req)
-
-        console.log({ checkHero })
 
         if (!checkHero) {
             return res.status(400).send(Response.sendResponse(false, "Not An Initial User", null, 400));

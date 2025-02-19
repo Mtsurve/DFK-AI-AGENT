@@ -37,11 +37,9 @@ async function createProfile(name, privateKey) {
 
     // Call the function
     const tx = await contract.createProfile(name, 0, 0);
-    console.log("Transaction sent, waiting for confirmation...");
 
     const receipt = await tx.wait();
 
-    console.log("Profile Created! Transaction Hash:", receipt);
     return receipt;
   } catch (error) {
     console.error("Error creating profile:", error);
@@ -54,9 +52,6 @@ async function transferNativeToken(RECEIVER_ADDRESS) {
     // Connect to the DFK Chain
     const provider = new ethers.JsonRpcProvider(RPC_URL);
     const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
-
-    console.log(`Sender Address: ${wallet.address}`);
-    console.log(`Receiver Address: ${RECEIVER_ADDRESS}`);
 
     // Get current gas price (Ethers v6)
     const feeData = await provider.getFeeData();
@@ -72,11 +67,9 @@ async function transferNativeToken(RECEIVER_ADDRESS) {
 
     // Send transaction
     const txResponse = await wallet.sendTransaction(tx);
-    console.log(`Transaction Sent! Hash: ${txResponse.hash}`);
 
     // Wait for transaction confirmation
     const receipt = await txResponse.wait();
-    console.log(`Transaction Confirmed! Block Number: ${receipt.blockNumber}`);
   } catch (error) {
     console.error("Error sending transaction:", error);
   }
@@ -131,7 +124,6 @@ const registerUser = async (req, res) => {
         Response.sendResponse(true, user, USER_CONSTANTS.USER_CREATED, 201)
       );
   } catch (err) {
-    console.log("errr", err);
     return res.status(500).send(Response.sendResponse(false, null, err, 500));
   }
 };
@@ -189,7 +181,6 @@ const userSignIn = async (req, res) => {
         )
       );
   } catch (err) {
-    console.log("err", err);
     return res.status(500).send(Response.sendResponse(false, null, err, 500));
   }
 };

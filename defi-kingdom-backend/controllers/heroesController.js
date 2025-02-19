@@ -123,7 +123,6 @@ const heroesStamina = async (req, res) => {
         return res.status(200).send(Response.sendResponse(true, staminaValue, HEROES_CONSTANTS_STATUS.HEROES_FETCHED, 200));
     }
     catch (error) {
-        console.log(error);
         return res.status(500).send(Response.sendResponse(false, null, HEROES_CONSTANTS_STATUS.ERROR_OCCURED, 500));
     }
 }
@@ -174,12 +173,10 @@ const buyHeroes = async (req, res) => {
 
         // ✅ If allowance is too low, approve the contract
         if (allowance < crystalAmountBN) {
-            console.log("Approving contract...");
             // Use BigInt to get the max uint256 value correctly
             const maxUint256 = BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
             const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, maxUint256);
             await approveTx.wait();
-            console.log("Approval successful!");
         }
 
         // Send transaction
@@ -189,7 +186,6 @@ const buyHeroes = async (req, res) => {
         await tx.wait();
 
         const heroData = await getHeroesNetworkById(hero_id);
-        // console.log("heroData",heroData);
 
         if (!heroData) {
             return res.status(400).send(Response.sendResponse(false, null, HEROES_CONSTANTS_STATUS.ERROR_OCCURED, 400));
@@ -200,7 +196,6 @@ const buyHeroes = async (req, res) => {
         return res.status(200).send(Response.sendResponse(true, heroData, HEROES_CONSTANTS_STATUS.HEROES_BOUGHT, 200));
 
     } catch (error) {
-        console.log(error);
         return res.status(500).send(Response.sendResponse(false, null, HEROES_CONSTANTS_STATUS.ERROR_OCCURED, 500));
     }
 }
@@ -235,12 +230,10 @@ const performBuyHero = async (req) => {
 
         // ✅ If allowance is too low, approve the contract
         if (allowance < crystalAmountBN) {
-            console.log("Approving contract...");
             // Use BigInt to get the max uint256 value correctly
             const maxUint256 = BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
             const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, maxUint256);
             await approveTx.wait();
-            console.log("Approval successful!");
         }
 
         const tx = await contract.bid(hero_id, crystalAmountBN);
@@ -282,8 +275,6 @@ const heroesStartQuest = async (req, res) => {
         for (let i = 0; i < data.heroes.length; i++) {
             hero_id = data.heroes[i].id
 
-            console.log("hero id::::::::@@@", hero_id)
-
             let heroes_quest = await contract.getHeroQuest(hero_id);
             let questStatus = Number(heroes_quest[9]);
 
@@ -319,7 +310,6 @@ const heroesStartQuest = async (req, res) => {
 
         const tx = await contract.startQuest(heroIds, questInstanceId, attempts, level, questTypeId)
         const receipt = await tx.wait();
-        console.log("Transaction confirmed in block:", receipt.blockNumber);
 
         let heroes_quest_new = await contract.getHeroQuest(hero_id);
         const questData = {
@@ -340,7 +330,6 @@ const heroesStartQuest = async (req, res) => {
 
         await userActivityLogger.logActivity(req, user.id, `Quest Started`, tx.hash);
 
-        console.log(user.telegram_chatid, process.env.TELEGRAM_API_URL)
         if (user.telegram_chatid) {
             await axios.post(process.env.TELEGRAM_API_URL, {
                 chat_id: user.telegram_chatid,
@@ -377,7 +366,6 @@ async function performStartQuest(req) {
         for (let i = 0; i < data.heroes.length; i++) {
             hero_id = data.heroes[i].id;
 
-            console.log("hero_id::::::::::::::::::::::::::::::::::::", hero_id)
             let heroes_quest = await contract.getHeroQuest(hero_id);
             let questStatus = Number(heroes_quest[9]);
             const QuestStatus = {
@@ -441,7 +429,6 @@ async function performStartQuest(req) {
             transaction_hash: tx.hash
         };
     } catch (error) {
-        console.log(error)
         throw new Error(`Quest start failed: ${error.message}`);
     }
 }
@@ -459,7 +446,6 @@ const runQuestCheck = async () => {
         if (quest) {
             const currentTimestamp = Math.floor(Date.now() / 1000);
             if (currentTimestamp >= quest.end_time) {
-                console.log(`Quest for hero ${quest.hero_id} has ended. Completing quest...`);
                 await heroesCompleteQuest(quest.hero_id, quest.wallet_address);
             }
         } else {
@@ -488,10 +474,8 @@ const heroesCompleteQuest = async (hero_id, wallet_address) => {
         const wallet = new ethers.Wallet(user.wallet_private_key, provider);
         const contract = new ethers.Contract(QUEST_CORE_CONTRACT_ADDRESS, QUEST_ABI, wallet);
 
-        console.log(`Completing Quest for hero: ${hero_id}`);
         const tx = await contract.completeQuest(hero_id);
         const receipt = await tx.wait();
-        console.log("Quest completed in block:", receipt.blockNumber);
 
         if (receipt.blockNumber)
             await db.hero_quests.update({ quest_status: 3 }, { where: { hero_id: hero_id } });
@@ -536,17 +520,13 @@ const sellheroesQuest = async (req, res) => {
         const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, wallet);
 
         // Approve Auction Contract to transfer Hero
-        console.log(`Approving Hero ID ${hero_id} for auction...`);
         const approveTx = await heroCoreContract.approve(contract, hero_id);
         await approveTx.wait();
-        console.log("Hero approved for auction.");
 
         const startingPriceBN = ethers.parseUnits(startingPrice.toString(), 18);
         const endingPriceBN = ethers.parseUnits(endingPrice.toString(), 18);
         const durationBN = BigInt(duration);
         const tx = await contract.createAuction(hero_id, startingPriceBN, endingPriceBN, durationBN, ethers.ZeroAddress);
-
-        console.log("Transaction sent:", tx);
 
         const receipt = await tx.wait();
 
