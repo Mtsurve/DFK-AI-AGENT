@@ -43,7 +43,7 @@ const ExampleNavbar: FC = function () {
             <Navbar.Brand>
               <div className="justify-around gap-x-2 flex">
                 <img
-                  src="../../../public/images/Brand_logo.png"
+                  src="../assets/images/Brand_logo.png"
                   alt=""
                   className="w-6 h-6 mt-1 object-contain mix-blend-multiply dark:mix-blend-screen"
                 />

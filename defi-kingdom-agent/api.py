@@ -52,7 +52,7 @@ def chat():
         return jsonify({"response": "An error occurred. Please try again."})
     
 
-API_URL = "http://34.93.243.137/v1/token/swap-tokens"
+API_URL = "https://defi.pharmaalabs.com/v1/token/swap-tokens"
  
 @app.route('/v2/swap', methods=['POST'])
 def swap_bot():
