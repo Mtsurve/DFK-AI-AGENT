@@ -1,24 +1,22 @@
-import { object, string } from "yup";
-
 export const tokens = [
   {
     address: "0xB57B60DeBDB0b8172bb6316a9164bd3C695F133a",
     name: "AVAX (DFK Chain)",
     key: 1,
-    image: "../../../public/images/avalanche_logo.png",
+    image: "/images/avalanche_logo.png", 
   },
 
   {
     address: "0x04b9dA42306B023f3572e106B11D82aAd9D32EBb",
     name: "CRYSTAL",
     key: 2,
-    image: "../../../public/images/crystal_logo.png",
+    image: "/images/crystal_logo.png",
   },
   {
     address: "0x576C260513204392F0eC0bc865450872025CB1cA",
     name: "DFKGOLD",
     key: 3,
-    image: "../../../public/images/dfkgold.png",
+    image: "/images/dfkgold.png", 
   },
 ];
 
