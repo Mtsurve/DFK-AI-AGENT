@@ -6,9 +6,9 @@ AI-Agent: A Python-based module for AI functionalities and integrations.
 Folder Structure
 
 DFK-AI-AGENT/
-  ├── defi-kingdom-agent/ # React application for the user interface
-  ├── defi-kingdom-backend/ # Node.js application with MySQL database
-  ├── defi-kingdom-frontend/ # Python-based AI agent for advanced functionalities
+  ├── defi-kingdom-frontend/   # React application for the user interface  
+  ├── defi-kingdom-backend/    # Node.js application with MySQL database  
+  └── defi-kingdom-agent/      # Python-based AI agent for advanced functionalities
 
 ## Prerequisites
 
@@ -90,6 +90,11 @@ Backend: Node.js, Express, MySQL
 Frontend: React.js, Tailwind CSS
 
 Agent: Python/FLASK (AI Automation)
+
+ ## **Link to our Application Demo**
+
+  Link - https://defi.pharmaalabs.com
+  Tutorial - https://x.com/web3_nk/status/1892213237112098949
 
 🤝 Contributing
 
