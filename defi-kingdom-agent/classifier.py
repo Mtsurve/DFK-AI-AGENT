@@ -14,7 +14,7 @@ load_dotenv()
 os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
 
 # Initialize model
-model = ChatGroq(model="gemma2-9b-it", temperature=0)
+model = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
 
 
 def _transaction_prompt(user_id, role, query):
