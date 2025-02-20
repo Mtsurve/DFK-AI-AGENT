@@ -90,6 +90,8 @@ def swap_bot():
             "amount": str(parsed_response.get("amount")),
             "action":  parsed_response.get("action")
             }
+            if swap_payload["action"].lower().strip() in ["transfer","transaction"]:
+                swap_payload["action"] = "swap"
             
         # return jsonify({"res": swap_payload})
         auth_header = request.headers.get("Authorization")
